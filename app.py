@@ -33,7 +33,9 @@ memory = []
 # Initialize Models
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 chat = ChatGroq(temperature=0.7, model_name="llama3-70b-8192", groq_api_key="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")
-semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Use local path to avoid downloading from internet
+semantic_model = SentenceTransformer('/models/all-MiniLM-L6-v2')
 
 # Initialize ChromaDB
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
