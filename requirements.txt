@@ -6,5 +6,4 @@ langchain-huggingface
 streamlit
 groq
 langchain_community
-sentence-transformers
 pysqlite3-binary 
