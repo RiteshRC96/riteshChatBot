@@ -29,7 +29,7 @@ memory = []
 
 # Initialize Models
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-chat = ChatGroq(temperature=0.7, model_name="llama3-70b-8192", groq_api_key="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")
+chat = ChatGroq(temperature=0.7, model_name="llama3-70b-8192", groq_api_key="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")
 semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Initialize ChromaDB
