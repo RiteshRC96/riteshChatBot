@@ -5,8 +5,8 @@ import sys
 import subprocess
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.memory import ConversationBufferMemory
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
 from sentence_transformers import SentenceTransformer
 import chromadb
 
@@ -19,34 +19,25 @@ def install_package(package):
 
 # Ensure necessary libraries are installed
 install_package("langchain")
-install_package("langchain.embeddings")
+install_package("langchain_huggingface")
+install_package("langchain_groq")
 install_package("sentence-transformers")
 install_package("chromadb")
-install_package("openai")  # Required for ChatOpenAI
 
 # Reset Memory on Refresh
 memory = []
 
 # Initialize Models
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+chat = ChatGroq(temperature=0.7, model_name="llama3-70b-8192", groq_api_key="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")
 semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
-
-# Load API key securely
-openai_api_key = st.secrets["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"]
-
-# Initialize OpenAI Chat
-chat = ChatOpenAI(
-    temperature=0.7,
-    model_name="gpt-3.5-turbo",  # Or use "gpt-4" if you have access
-    openai_api_key=openai_api_key
-)
 
 # Initialize ChromaDB
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(name="ai_knowledge_base")
 
 # Function to query AI model
-def query_chat(user_query):
+def query_llama3(user_query):
     system_prompt = "System Prompt: Your AI clone personality based on Manas Patni."
 
     messages = [
@@ -56,7 +47,10 @@ def query_chat(user_query):
 
     try:
         response = chat.invoke(messages)
+        
+        # Save conversation in session memory (disappears on refresh)
         memory.append({"input": user_query, "output": response.content})
+        
         return response.content
     except Exception as e:
         return f"⚠️ API Error: {str(e)}"
@@ -65,8 +59,10 @@ def query_chat(user_query):
 def main():
     st.title("AI Chatbot Based on Manas Patni")
     st.markdown("Welcome to the AI chatbot interface. Ask a question to get started!")
-
+    
+    # Display Chat History for the Session Only
     st.markdown("### Chat History")
+    
     if memory:
         for chat in memory:
             st.markdown(
@@ -87,10 +83,11 @@ def main():
     else:
         st.write("No previous chat history.")
 
+    # User Input
     user_query = st.text_input("Enter your question:")
     if user_query:
-        response = query_chat(user_query)
-
+        response = query_llama3(user_query)
+        
         st.markdown(
             f"""
             <div style='display: flex; justify-content: flex-start; margin-bottom: 10px;'>
